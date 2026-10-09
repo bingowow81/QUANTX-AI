@@ -1,19 +1,25 @@
 import math
+import os
 import re
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import yfinance as yf
+from google import genai
 
 app = FastAPI(title="QUANTX AI API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 공개 시에는 큐샵 도메인으로 제한 권장
+    allow_origins=["*"],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Render 환경변수에 등록한 GEMINI_API_KEY 연동
+gemini_api_key = os.environ.get("GEMINI_API_KEY")
+gemini_client = genai.Client(api_key=gemini_api_key) if gemini_api_key else None
 
 class ChatRequest(BaseModel):
     message: str
@@ -60,7 +66,6 @@ def resolve_symbol(raw: str):
             except Exception:
                 pass
         raise HTTPException(status_code=404, detail="종목코드를 찾지 못했습니다. 6자리 코드를 확인해주세요.")
-    # US/other market symbols are passed through as entered
     return (key, key, "USD")
 
 @app.get("/")
@@ -97,7 +102,6 @@ def analyze(req: AnalyzeRequest):
 
     ma20 = float(closes.tail(20).mean())
     ma50 = float(closes.tail(50).mean()) if len(closes) >= 50 else ma20
-    # Simple technical score from price trend only; not a valuation/fundamental score.
     trend_score = 50
     trend_score += 20 if current > ma20 else -20
     trend_score += 15 if ma20 > ma50 else -15
@@ -124,12 +128,30 @@ def analyze(req: AnalyzeRequest):
         "data_date": str(closes.index[-1].date()),
     }
 
+# 제미나이(Gemini) 연동 채팅 엔드포인트
 @app.post("/api/chat")
 def chat(req: ChatRequest):
     msg = req.message.strip()
     if not msg:
-        return {"reply": "질문을 입력해주세요."}
-    # Basic chat endpoint for connection testing. It is not an LLM yet.
-    if any(word in msg for word in ["분석", "주가", "종목", "삼성전자", "SK하이닉스"]):
-        return {"reply": "종목 분석은 홈페이지의 'AI 종목 분석' 입력란을 사용해주세요. 현재 채팅 API는 연결 확인용이며, 실제 대화형 AI 모델은 아직 연결되지 않았습니다."}
-    return {"reply": f"QUANTX 서버 연결 성공. 입력한 질문: {msg}\n현재 채팅은 연결 테스트 단계이며, 실제 AI 모델 연결은 별도 설정이 필요합니다."}
+        return {"reply": "질문을 입력해주세요.", "answer": "질문을 입력해주세요."}
+
+    if not gemini_client:
+        warn = "⚠️ Render 환경변수에 GEMINI_API_KEY가 등록되지 않았습니다."
+        return {"reply": warn, "answer": warn}
+
+    try:
+        prompt = (
+            "너는 주식 및 정량적 퀀트 투자 분석 AI 'QUANTX AI'야. "
+            "사용자의 질문에 데이터와 논리를 바탕으로 친절하고 명확하게 답변해줘. "
+            "모든 투자의 최종 책임은 투자자 본인에게 있다는 고지를 문장 끝에 자연스럽게 덧붙여줘.\n\n"
+            f"질문: {msg}"
+        )
+        response = gemini_client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt,
+        )
+        ans = response.text
+        return {"reply": ans, "answer": ans}
+    except Exception as e:
+        err = f"⚠️ Gemini 응답 실패: {str(e)}"
+        return {"reply": err, "answer": err}
