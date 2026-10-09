@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>QUANTX AI</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, "Noto Sans KR", sans-serif;
+    background: #07111f;
+    color: #f5f7fa;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+header {
+    height: 70px;
+    border-bottom: 1px solid #1b2b40;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 6%;
+    background: #081525;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo {
+    font-size: 25px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.logo span {
+    color: #00e5a0;
+}
+
+nav {
+    display: flex;
+    gap: 30px;
+}
+
+nav a {
+    color: #aab7c8;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+nav a:hover {
+    color: #00e5a0;
+}
+
+/* =========================
+   HERO
+========================= */
+
+.hero {
+    min-height: 470px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 80px 8%;
+    background:
+        radial-gradient(circle at 80% 30%, rgba(0,229,160,.15), transparent 30%),
+        linear-gradient(135deg, #07111f, #0a1728);
+}
+
+.hero-text {
+    max-width: 650px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 8px 14px;
+    border: 1px solid #00e5a0;
+    border-radius: 30px;
+    color: #00e5a0;
+    font-size: 12px;
+    margin-bottom: 20px;
+}
+
+.hero h1 {
+    font-size: 58px;
+    line-height: 1.05;
+    margin-bottom: 20px;
+}
+
+.hero h1 span {
+    color: #00e5a0;
+}
+
+.hero p {
+    color: #9eacbd;
+    line-height: 1.8;
+    font-size: 16px;
+}
+
+.hero button {
+    margin-top: 30px;
+    padding: 14px 25px;
+    border: none;
+    border-radius: 8px;
+    background: #00e5a0;
+    color: #04120e;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.hero button:hover {
+    transform: translateY(-2px);
+}
+
+/* =========================
+   AI ANALYSIS
+========================= */
+
+.section {
+    padding: 80px 8%;
+}
+
+.section-title {
+    margin-bottom: 35px;
+}
+
+.section-title small {
+    color: #00e5a0;
+}
+
+.section-title h2 {
+    font-size: 32px;
+    margin-top: 8px;
+}
+
+.analysis-box {
+    background: #0c1a2b;
+    border: 1px solid #1b3048;
+    border-radius: 15px;
+    padding: 30px;
+    max-width: 1000px;
+    margin: auto;
+}
+
+.search-row {
+    display: flex;
+    gap: 10px;
+}
+
+.search-row input {
+    flex: 1;
+    background: #07111f;
+    border: 1px solid #263a52;
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    outline: none;
+}
+
+.search-row button {
+    padding: 0 25px;
+    border: none;
+    border-radius: 8px;
+    background: #00e5a0;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.result {
+    margin-top: 30px;
+    display: none;
+}
+
+.stock-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stock-name {
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.score {
+    font-size: 38px;
+    font-weight: bold;
+    color: #00e5a0;
+}
+
+.metrics {
+    margin-top: 25px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.metric {
+    background: #081525;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.metric small {
+    color: #8291a5;
+}
+
+.metric strong {
+    display: block;
+    margin-top: 8px;
+    font-size: 20px;
+}
+
+/* =========================
+   AI CHAT
+========================= */
+
+.chat-section {
+    padding: 80px 8%;
+    background: #081321;
+}
+
+.chat-container {
+    max-width: 900px;
+    height: 600px;
+    margin: auto;
+    background: #0c1a2b;
+    border: 1px solid #1d324a;
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-header {
+    padding: 20px 25px;
+    border-bottom: 1px solid #1d324a;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ai-dot {
+    width: 10px;
+    height: 10px;
+    background: #00e5a0;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #00e5a0;
+}
+
+.chat-header strong {
+    font-size: 17px;
+}
+
+.chat-header span {
+    color: #7f8da0;
+    font-size: 12px;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 25px;
+}
+
+.message {
+    max-width: 75%;
+    padding: 13px 16px;
+    margin-bottom: 15px;
+    border-radius: 12px;
+    line-height: 1.6;
+    font-size: 14px;
+}
+
+.ai-message {
+    background: #12243a;
+    color: #dbe4ef;
+    border-top-left-radius: 3px;
+}
+
+.user-message {
+    background: #00e5a0;
+    color: #03130e;
+    margin-left: auto;
+    border-top-right-radius: 3px;
+}
+
+.chat-input {
+    padding: 15px;
+    border-top: 1px solid #1d324a;
+    display: flex;
+    gap: 10px;
+}
+
+.chat-input input {
+    flex: 1;
+    padding: 15px;
+    background: #07111f;
+    border: 1px solid #263a52;
+    border-radius: 8px;
+    color: white;
+    outline: none;
+}
+
+.chat-input button {
+    width: 90px;
+    border: none;
+    border-radius: 8px;
+    background: #00e5a0;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* =========================
+   FEATURES
+========================= */
+
+.features {
+    padding: 80px 8%;
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.feature {
+    background: #0c1a2b;
+    border: 1px solid #1c3047;
+    padding: 30px;
+    border-radius: 15px;
+}
+
+.feature-icon {
+    font-size: 30px;
+    margin-bottom: 20px;
+}
+
+.feature h3 {
+    margin-bottom: 10px;
+}
+
+.feature p {
+    color: #8998aa;
+    line-height: 1.7;
+    font-size: 14px;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+footer {
+    border-top: 1px solid #1b2b40;
+    padding: 30px 8%;
+    color: #66768a;
+    text-align: center;
+    font-size: 12px;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width: 800px) {
+
+    nav {
+        display: none;
+    }
+
+    .hero {
+        padding: 60px 6%;
+    }
+
+    .hero h1 {
+        font-size: 42px;
+    }
+
+    .metrics {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .search-row {
+        flex-direction: column;
+    }
+
+    .search-row button {
+        height: 45px;
+    }
+}
+</style>
+</head>
+
+
+<body>
+
+<!-- HEADER -->
+
+<header>
+    <div class="logo">
+        QUANT<span>X</span>
+    </div>
+
+    <nav>
+        <a href="#analysis">AI 분석</a>
+        <a href="#chat">AI Chat</a>
+        <a href="#features">기능</a>
+    </nav>
+</header>
+
+
+<!-- HERO -->
+
+<section class="hero">
+
+    <div class="hero-text">
+
+        <div class="badge">
+            QUANTITATIVE AI INVESTMENT
+        </div>
+
+        <h1>
+            데이터로 보는<br>
+            <span>AI 투자분석</span>
+        </h1>
+
+        <p>
+            QUANTX AI는 기업의 가치평가, 성장성,
+            수익성, 안정성, 기술적 지표와 시장 상황을
+            종합하여 투자 판단을 보조합니다.
+        </p>
+
+        <button onclick="document.getElementById('chat').scrollIntoView()">
+            AI에게 투자 질문하기 →
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- AI ANALYSIS -->
+
+<section class="section" id="analysis">
+
+    <div class="section-title">
+        <small>QUANTX ANALYSIS</small>
+        <h2>AI 종목 분석</h2>
+    </div>
+
+    <div class="analysis-box">
+
+        <div class="search-row">
+
+            <input
+                id="stockInput"
+                placeholder="종목명 또는 종목코드 입력 (예: 삼성전자 / 005930)"
+            >
+
+            <button onclick="analyzeStock()">
+                분석
+            </button>
+
+        </div>
+
+
+        <div class="result" id="result">
+
+            <div class="stock-header">
+
+                <div>
+                    <div class="stock-name" id="stockName">
+                        삼성전자
+                    </div>
+
+                    <small>
+                        QUANTX AI 분석 결과
+                    </small>
+                </div>
+
+                <div class="score" id="stockScore">
+                    82.4
+                </div>
+
+            </div>
+
+
+            <div class="metrics">
+
+                <div class="metric">
+                    <small>현재가</small>
+                    <strong id="valueScore">-</strong>
+                </div>
+
+                <div class="metric">
+                    <small>당일 등락률</small>
+                    <strong id="profitScore">-</strong>
+                </div>
+
+                <div class="metric">
+                    <small>20일 변동률</small>
+                    <strong id="growthScore">-</strong>
+                </div>
+
+                <div class="metric">
+                    <small>기술 점수</small>
+                    <strong id="techScore">-</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- AI CHAT -->
+
+<section class="chat-section" id="chat">
+
+    <div class="section-title">
+        <small>QUANTX AI</small>
+        <h2>AI 투자 어시스턴트</h2>
+    </div>
+
+
+    <div class="chat-container">
+
+        <div class="chat-header">
+
+            <div class="ai-dot"></div>
+
+            <div>
+                <strong>QUANTX AI</strong><br>
+                <span>AI Investment Assistant</span>
+            </div>
+
+        </div>
+
+
+        <div class="chat-messages" id="chatMessages">
+
+            <div class="message ai-message">
+                안녕하세요. 저는 QUANTX AI입니다. 👋<br><br>
+                종목 분석, 시장 상황, 기업 비교,
+                투자 전략 등에 대해 질문해주세요.
+            </div>
+
+        </div>
+
+
+        <div class="chat-input">
+
+            <input
+                id="chatInput"
+                placeholder="예: 삼성전자 지금 매수해도 될까?"
+                onkeydown="handleEnter(event)"
+            >
+
+            <button onclick="sendMessage()">
+                전송
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- FEATURES -->
+
+<section class="features" id="features">
+
+    <div class="section-title">
+        <small>QUANTX SYSTEM</small>
+        <h2>AI 분석 시스템</h2>
+    </div>
+
+
+    <div class="feature-grid">
+
+        <div class="feature">
+
+            <div class="feature-icon">📊</div>
+
+            <h3>정량적 분석</h3>
+
+            <p>
+                기업 가치, 수익성, 성장성,
+                재무 안정성 및 기술적 지표를
+                종합적으로 분석합니다.
+            </p>
+
+        </div>
+
+
+        <div class="feature">
+
+            <div class="feature-icon">🤖</div>
+
+            <h3>AI 투자추천</h3>
+
+            <p>
+                다양한 데이터를 기반으로
+                종목별 점수와 투자 판단 참고자료를
+                제공합니다.
+            </p>
+
+        </div>
+
+
+        <div class="feature">
+
+            <div class="feature-icon">💬</div>
+
+            <h3>AI 투자채팅</h3>
+
+            <p>
+                자연어로 종목과 시장에 대해 질문하고
+                QUANTX 분석 결과를 바탕으로
+                답변을 받을 수 있습니다.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<footer>
+    QUANTX AI © 2026 · Investment information is for educational purposes only.
+</footer>
+
+
+<script>
+
+/* =========================
+   종목 분석
+========================= */
+
+// Render 배포 후 실제 서버 주소로 바꿔주세요.
+const QUANTX_API_BASE = "https://YOUR-RENDER-SERVICE.onrender.com";
+
+async function analyzeStock() {
+    const input = document.getElementById("stockInput").value.trim();
+    const result = document.getElementById("result");
+    const button = document.querySelector(".search-row button");
+
+    if (!input) {
+        alert("종목명 또는 종목코드를 입력해주세요.");
+        return;
+    }
+
+    if (QUANTX_API_BASE.includes("YOUR-RENDER-SERVICE")) {
+        alert("먼저 QUANTX_API_BASE에 Render 서버 주소를 입력해주세요.");
+        return;
+    }
+
+    button.disabled = true;
+    button.textContent = "분석 중...";
+    result.style.display = "block";
+    document.getElementById("stockName").innerText = input;
+    document.getElementById("stockScore").innerText = "...";
+    ["valueScore", "profitScore", "growthScore", "techScore"].forEach(id => {
+        document.getElementById(id).innerText = "...";
+    });
+
+    try {
+        const response = await fetch(`${QUANTX_API_BASE}/api/analyze`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ symbol: input })
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.detail || data.error || "분석 요청 실패");
+
+        document.getElementById("stockName").innerText = `${data.name} (${data.symbol})`;
+        document.getElementById("stockScore").innerText = `${data.score}/100`;
+        document.getElementById("valueScore").innerText =
+            `${Number(data.current_price).toLocaleString()} ${data.currency || "원"}`;
+        document.getElementById("profitScore").innerText =
+            `${data.daily_change_pct >= 0 ? "+" : ""}${Number(data.daily_change_pct).toFixed(2)}%`;
+        document.getElementById("growthScore").innerText =
+            `${data.return_20d >= 0 ? "+" : ""}${Number(data.return_20d).toFixed(2)}%`;
+        document.getElementById("techScore").innerText = `${data.technical_score}/100`;
+
+        addMessage(
+            `📊 ${data.name} 분석 결과\n` +
+            `현재가: ${Number(data.current_price).toLocaleString()} ${data.currency || "원"}\n` +
+            `당일 등락률: ${data.daily_change_pct >= 0 ? "+" : ""}${Number(data.daily_change_pct).toFixed(2)}%\n` +
+            `최근 20거래일 변동률: ${data.return_20d >= 0 ? "+" : ""}${Number(data.return_20d).toFixed(2)}%\n` +
+            `기술 점수: ${data.technical_score}/100\n\n` +
+            `${data.summary}\n\n` +
+            `※ 과거 가격 기반 참고 지표이며, 매수·매도 수익을 보장하지 않습니다.`,
+            "ai"
+        );
+    } catch (error) {
+        result.style.display = "none";
+        alert(`종목 분석 실패: ${error.message}\n서버 주소와 서버 배포 상태를 확인해주세요.`);
+    } finally {
+        button.disabled = false;
+        button.textContent = "분석";
+    }
+}
+
+
+/* =========================
+   ENTER
+========================= */
+
+function handleEnter(event) {
+
+    if (event.key === "Enter") {
+        sendMessage();
+    }
+
+}
+
+
+/* =========================
+   AI CHAT
+========================= */
+
+async function sendMessage() {
+
+    const input =
+        document.getElementById("chatInput");
+
+    const message =
+        input.value.trim();
+
+    if (!message) return;
+
+    // 도움말 명령어는 서버 연결 없이도 즉시 표시
+    const helpCommands = ["도움말", "명령어", "!도움말", "/help", "help"];
+    if (helpCommands.includes(message.trim().toLowerCase())) {
+        addMessage(message, "user");
+        addMessage(
+            "📘 QUANTX AI 도움말\n\n" +
+            "사용 가능한 질문 예시\n\n" +
+            "📊 종목 분석: 삼성전자 분석해줘\n" +
+            "📈 시장 분석: 오늘 주식시장 어때?\n" +
+            "⚖️ 종목 비교: 삼성전자와 SK하이닉스 비교해줘\n" +
+            "💡 투자 기초: PER과 PBR 차이가 뭐야?\n" +
+            "🧭 투자 전략: 분산투자는 왜 중요해?\n" +
+            "❓ 도움말: 사용 가능한 질문 예시 보기\n\n" +
+            "참고: 이 목록은 질문 예시이며, 실제 종목 분석은 QUANTX 서버 기능 연결 상태에 따라 달라집니다. 투자 판단 전 최신 데이터와 위험을 확인하세요.",
+            "ai"
+        );
+        input.value = "";
+        return;
+    }
+
+    addMessage(message, "user");
+    input.value = "";
+
+
+    /*
+       실제 AI 서버 연결
+
+       POST /api/chat
+
+       요청:
+       {
+           "message": "삼성전자 지금 어때?"
+       }
+
+       응답:
+       {
+           "answer": "..."
+       }
+    */
+
+    try {
+
+        const response = await fetch(`${QUANTX_API_BASE}/api/chat`, {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                message: message
+            })
+
+        });
+
+
+        if (!response.ok) {
+            throw new Error("API 오류");
+        }
+
+
+        const data =
+            await response.json();
+
+
+        addMessage( data.answer || data.reply || "서버 응답을 확인할 수 없습니다.", "ai" );
+
+
+    } catch (error) {
+
+        /*
+           백엔드 연결 전 테스트용
+        */
+
+        addMessage(
+            "현재 AI 서버가 연결되지 않았습니다. " +
+            "QUANTX AI 서버를 연결하면 실제 투자분석 답변을 받을 수 있습니다.",
+            "ai"
+        );
+
+    }
+
+}
+
+
+/* =========================
+   MESSAGE
+========================= */
+
+function addMessage(text, type) {
+
+    const container =
+        document.getElementById("chatMessages");
+
+    const div =
+        document.createElement("div");
+
+    div.className =
+        "message " +
+        (type === "user"
+            ? "user-message"
+            : "ai-message");
+
+    div.innerHTML =
+        text.replace(/\n/g, "<br>");
+
+    container.appendChild(div);
+
+    container.scrollTop =
+        container.scrollHeight;
+
+}
+
+</script>
+
+</body>
+</html>
