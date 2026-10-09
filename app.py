@@ -127,6 +127,7 @@ def analyze(req: AnalyzeRequest):
         "summary": summary,
         "data_date": str(closes.index[-1].date()),
     }
+import time
 
 # 제미나이(Gemini) 연동 채팅 엔드포인트
 @app.post("/api/chat")
@@ -139,19 +140,26 @@ def chat(req: ChatRequest):
         warn = "⚠️ Render 환경변수에 GEMINI_API_KEY가 등록되지 않았습니다."
         return {"reply": warn, "answer": warn}
 
-    try:
-        prompt = (
-            "너는 주식 및 정량적 퀀트 투자 분석 AI 'QUANTX AI'야. "
-            "사용자의 질문에 핵심 위주로 3~4줄 내외로 간결하고 명확하게 답변해줘. "
-            "모든 투자의 최종 책임은 투자자 본인에게 있다는 고지를 문장 끝에 자연스럽게 덧붙여줘.\n\n"
-            f"질문: {msg}"
-        )
-        response = gemini_client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=prompt,
-        )
-        ans = response.text
-        return {"reply": ans, "answer": ans}
-    except Exception as e:
-        err = f"⚠️ Gemini 응답 실패: {str(e)}"
-        return {"reply": err, "answer": err}
+    prompt = (
+        "너는 주식 및 정량적 퀀트 투자 분석 AI 'QUANTX AI'야. "
+        "사용자의 질문에 핵심 위주로 3~4줄 내외로 간결하고 명확하게 답변해줘. "
+        "모든 투자의 최종 책임은 투자자 본인에게 있다는 고지를 문장 끝에 자연스럽게 덧붙여줘.\n\n"
+        f"질문: {msg}"
+    )
+
+    # 503 일시적 과부하 대응: 최대 2회 자동 재시도
+    last_error = None
+    for attempt in range(2):
+        try:
+            response = gemini_client.models.generate_content(
+                model="gemini-3.8-flash",
+                contents=prompt,
+            )
+            ans = response.text
+            return {"reply": ans, "answer": ans}
+        except Exception as e:
+            last_error = e
+            time.sleep(1)  # 1초 대기 후 즉시 재시도
+
+    err = f"⚠️ Gemini 응답 실패: {str(last_error)}"
+    return {"reply": err, "answer": err}
